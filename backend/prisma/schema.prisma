@@ -1,15 +1,439 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+enum RestaurantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  RESIGNED
+  TERMINATED
+}
+enum CustomerStatus {
+  ACTIVE
+  BLOCKED
+}
+enum TableStatus {
+  AVAILABLE
+  RESERVED
+  OCCUPIED
+  CLEANING
+  OUT_OF_SERVICE
+}
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  SEATED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  SERVED
+  COMPLETED
+  CANCELLED
+}
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
+}
+
+model User {
+  id              String     @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String     @unique
+  phone           String?    @unique
+  password        String
+  avatar          String?
+  status          UserStatus @default(ACTIVE)
+
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  employee Employee?
+  customer Customer?
+
+  userRoles        UserRole[]
+  ownedRestaurants Restaurant[]
+
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Role {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Restaurant {
+  id     String @id @default(uuid())
+  ownerId String
+
+  name  String
+  slug  String @unique
+
+  email String?
+  phone String?
+
+  logo       String?
+  coverImage String?
+
+  description String?
+
+  currency String @default("BDT")
+  timezone String @default("Asia/Dhaka")
+
+  status RestaurantStatus @default(ACTIVE)
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+
+  branches    Branch[]
+  employees   Employee[]
+  customers   Customer[]
+  menuItems   MenuItem[]
+  orders      Order[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([ownerId])
+  @@map("restaurants")
+}
+
+model Branch {
+  id           String @id @default(uuid())
+  restaurantId String
+
+  name String
+
+  phone String?
+  email String?
+
+  address    String
+  city       String
+  postalCode String?
+
+  latitude  Float?
+  longitude Float?
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  employees    Employee[]
+  diningTables DiningTable[]
+  reservations Reservation[]
+  orders       Order[]
+
+  @@index([restaurantId])
+  @@map("branches")
+}
+
+model Employee {
+  id           String @id @default(uuid())
+  userId       String @unique
+  restaurantId String
+  branchId     String
+
+  employeeCode String @unique
+  designation  String
+  salary       Decimal @db.Decimal(10, 2)
+  hiredAt      DateTime
+
+  status EmployeeStatus @default(ACTIVE)
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  branch     Branch     @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  orders Order[]
+
+  @@index([restaurantId])
+  @@index([branchId])
+  @@map("employees")
+}
+
+model Customer {
+  id           String @id @default(uuid())
+  userId       String @unique
+  restaurantId String
+
+  customerCode  String @unique
+  loyaltyPoints Int    @default(0)
+
+  status CustomerStatus @default(ACTIVE)
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  addresses CustomerAddress[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  reservations Reservation[]
+  orders       Order[]
+
+  @@index([restaurantId])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id         String @id @default(uuid())
+  customerId String
+
+  label      String
+  address    String
+  city       String
+  postalCode String?
+
+  latitude  Float?
+  longitude Float?
+
+  isDefault Boolean @default(false)
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
+model DiningTable {
+  id           String @id @default(uuid())
+  restaurantId String
+  branchId     String
+
+  tableNumber String
+  name        String?
+  capacity    Int
+
+  status TableStatus @default(AVAILABLE)
+
+  location String?
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  reservations Reservation[]
+  orders       Order[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([branchId, tableNumber])
+  @@index([restaurantId])
+  @@index([branchId])
+  @@map("dining_tables")
+}
+
+model Reservation {
+  id           String @id @default(uuid())
+  restaurantId String
+  customerId   String
+  branchId     String
+  tableId      String
+
+  reservationAt DateTime
+  guestCount    Int
+  specialNote   String?
+
+  status ReservationStatus @default(PENDING)
+
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  branch   Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  table    DiningTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([restaurantId])
+  @@index([branchId])
+  @@index([customerId])
+  @@map("reservations")
+}
+
+model MenuItem {
+  id           String  @id @default(uuid())
+  restaurantId String
+  name         String
+  description  String?
+  price        Decimal @db.Decimal(10, 2)
+  image        String?
+  isAvailable  Boolean @default(true)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  orderItems OrderItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([restaurantId])
+  @@map("menu_items")
+}
+
+model Order {
+  id           String @id @default(uuid())
+  orderNumber  String @unique
+  restaurantId String
+  branchId     String
+  customerId   String?
+  tableId      String?
+  employeeId   String?
+
+  type   OrderType
+  status OrderStatus @default(PENDING)
+  notes  String?
+
+  subtotal      Decimal @db.Decimal(10, 2)
+  discount      Decimal @default(0) @db.Decimal(10, 2)
+  tax           Decimal @default(0) @db.Decimal(10, 2)
+  serviceCharge Decimal @default(0) @db.Decimal(10, 2)
+  total         Decimal @db.Decimal(10, 2)
+
+  restaurant Restaurant   @relation(fields: [restaurantId], references: [id])
+  branch     Branch       @relation(fields: [branchId], references: [id])
+  customer   Customer?    @relation(fields: [customerId], references: [id])
+  table      DiningTable? @relation(fields: [tableId], references: [id])
+  employee   Employee?    @relation(fields: [employeeId], references: [id])
+
+  orderItems OrderItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([restaurantId])
+  @@index([branchId])
+  @@index([restaurantId, status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String @id @default(uuid())
+  orderId    String
+  menuItemId String
+
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  discount  Decimal @default(0) @db.Decimal(10, 2)
+  total     Decimal @db.Decimal(10, 2)
+  note      String?
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([menuItemId])
+  @@map("order_items")
 }
