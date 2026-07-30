@@ -5,15 +5,15 @@ import { IsEmail, IsNotEmpty, MinLength, IsOptional, Matches } from 'class-valid
 export class RegisterInput {
   @Field()
   @IsNotEmpty({ message: 'First name is required' })
-  firstName: string;
+  firstName!: string;
 
   @Field()
   @IsNotEmpty({ message: 'Last name is required' })
-  lastName: string;
+  lastName!: string;
 
   @Field()
   @IsEmail({}, { message: 'A valid email is required' })
-  email: string;
+  email!: string;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -24,5 +24,5 @@ export class RegisterInput {
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number or symbol',
   })
-  password: string;
+  password!: string;
 }

@@ -3,29 +3,29 @@ import { ObjectType, Field } from '@nestjs/graphql';
 @ObjectType()
 export class UserType {
   @Field()
-  id: string;
+  id!: string;
 
   @Field()
-  firstName: string;
+  firstName!: string;
 
   @Field()
-  lastName: string;
+  lastName!: string;
 
   @Field()
-  email: string;
+  email!: string;
 
   @Field(() => [String])
-  roles: string[];
+  roles!: string[];
 }
 
 @ObjectType()
 export class AuthPayload {
   @Field()
-  accessToken: string;
+  accessToken!: string;
 
   @Field()
-  refreshToken: string;
+  refreshToken!: string;
 
   @Field(() => UserType)
-  user: UserType;
+  user!: UserType;
 }

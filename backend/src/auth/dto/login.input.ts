@@ -5,9 +5,9 @@ import { IsEmail, IsNotEmpty } from 'class-validator';
 export class LoginInput {
   @Field()
   @IsEmail({}, { message: 'A valid email is required' })
-  email: string;
+  email!: string;
 
   @Field()
   @IsNotEmpty({ message: 'Password is required' })
-  password: string;
+  password!: string;
 }

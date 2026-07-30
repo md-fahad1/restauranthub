@@ -5,5 +5,5 @@ import { IsNotEmpty } from 'class-validator';
 export class RefreshTokenInput {
   @Field()
   @IsNotEmpty()
-  refreshToken: string;
+  refreshToken!: string;
 }
