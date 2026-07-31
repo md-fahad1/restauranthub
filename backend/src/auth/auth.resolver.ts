@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthPayload } from './dto/auth-payload.type';
@@ -8,11 +8,19 @@ import { LoginInput } from './dto/login.input';
 import { RefreshTokenInput } from './dto/refresh-token.input';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { JwtRefreshPayload } from './types/jwt-payload.type';
+import type { JwtPayload, JwtRefreshPayload } from './types/jwt-payload.type';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
+
+  // Simple authenticated query so the GraphQL schema has a Query root type
+  // (a schema with only Mutations is invalid) — also handy as a quick
+  // "am I logged in, and as whom?" check from the frontend.
+  @Query(() => String)
+  async me(@CurrentUser() user: JwtPayload) {
+    return `Logged in as ${user.email} with roles: ${user.roles.join(', ')}`;
+  }
 
   @Public()
   @Mutation(() => AuthPayload)

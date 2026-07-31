@@ -1,0 +1,45 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthPayload {
+  accessToken: String!
+  refreshToken: String!
+  user: UserType!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  login(input: LoginInput!): AuthPayload!
+  logout: Boolean!
+  refreshToken(input: RefreshTokenInput!): AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
+}
+
+type Query {
+  me: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+input RegisterInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  phone: String
+}
+
+type UserType {
+  email: String!
+  firstName: String!
+  id: String!
+  lastName: String!
+  roles: [String!]!
+}
