@@ -6,18 +6,17 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   user: AuthUser | null;
+  hasHydrated: boolean;
   setSession: (payload: { accessToken: string; refreshToken: string; user: AuthUser }) => void;
   clearSession: () => void;
+  setHasHydrated: (value: boolean) => void;
 }
 
 /**
  * NOTE ON SECURITY: this persists tokens to localStorage for local
  * development convenience. localStorage is readable by any JS on the page,
  * so it's vulnerable to XSS token theft. Before shipping to real users,
- * swap this for httpOnly cookies set by the backend (which means moving
- * token issuance to a server-side route instead of reading the response
- * directly in the browser). Flagging this now so it's a deliberate choice,
- * not an oversight.
+ * swap this for httpOnly cookies set by the backend.
  */
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -25,9 +24,20 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       user: null,
+      hasHydrated: false,
       setSession: ({ accessToken, refreshToken, user }) => set({ accessToken, refreshToken, user }),
       clearSession: () => set({ accessToken: null, refreshToken: null, user: null }),
+      setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
-    { name: 'restauranthub-auth' },
+    {
+      name: 'restauranthub-auth',
+      // Runs once localStorage has actually been read into the store.
+      // ProtectedRoute waits on this flag so it never redirects a real
+      // logged-in user to /login just because the check ran before
+      // localStorage finished loading.
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    },
   ),
 );

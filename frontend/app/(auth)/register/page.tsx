@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client/react';
 import { REGISTER_MUTATION, type AuthPayload } from '@/lib/graphql/auth';
 import { useAuthStore } from '@/store/auth-store';
+import {getPostAuthRedirect} from '@/lib/auth/get-post-auth-redirect';
 import { TicketShell } from '@/components/auth/TicketShell';
 import { StampToggle } from '@/components/auth/StampToggle';
 import { Field } from '@/components/auth/Field';
@@ -48,7 +49,7 @@ export default function RegisterPage() {
       const { data } = await register({ variables: { input: form } });
       if (data?.register) {
         setSession(data.register);
-        router.push('/dashboard');
+        router.push(getPostAuthRedirect(data.register.user.roles));
       }
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Could not create your account. Try again.');
