@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { GqlAuthGuard } from './auth/guards/gql-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     }),
     PrismaModule,
     AuthModule,
+    UsersModule,
     // Phase 2+ feature modules (RestaurantModule, BranchModule, ...) get added here later
   ],
   providers: [
