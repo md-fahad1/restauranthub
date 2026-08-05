@@ -27,14 +27,14 @@ async function main() {
   console.log('Seeding super admin...');
   const superAdminRole = await prisma.role.findUniqueOrThrow({ where: { slug: 'SUPER_ADMIN' } });
 
-  const superAdminPassword = await bcrypt.hash('ChangeMe123!', 12);
+  const superAdminPassword = await bcrypt.hash('admin', 12);
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'admin@restauranthub.dev' },
+    where: { email: 'admin@gmail.com' },
     update: {},
     create: {
       firstName: 'Super',
       lastName: 'Admin',
-      email: 'admin@restauranthub.dev',
+      email: 'admin@gmail.com',
       password: superAdminPassword,
     },
   });
@@ -47,15 +47,15 @@ async function main() {
 
   console.log('Seeding a test restaurant owner + restaurant...');
   const ownerRole = await prisma.role.findUniqueOrThrow({ where: { slug: 'OWNER' } });
-  const ownerPassword = await bcrypt.hash('ChangeMe123!', 12);
+  const ownerPassword = await bcrypt.hash('admin', 12);
 
   const owner = await prisma.user.upsert({
-    where: { email: 'owner@testrestaurant.dev' },
+    where: { email: 'owner@gmail.com' },
     update: {},
     create: {
       firstName: 'Test',
       lastName: 'Owner',
-      email: 'owner@testrestaurant.dev',
+      email: 'owner@gmail.com',
       password: ownerPassword,
     },
   });
@@ -91,8 +91,8 @@ async function main() {
   });
 
   console.log('\nDone. Test credentials:');
-  console.log('  Super Admin -> admin@restauranthub.dev / ChangeMe123!');
-  console.log('  Owner       -> owner@testrestaurant.dev / ChangeMe123!');
+  console.log('  Super Admin -> admin@gmail.com / admin');
+  console.log('  Owner       -> owner@gmail.com / admin');
 }
 
 main()

@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { GqlAuthGuard } from './auth/guards/gql-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { UsersModule } from './users/users.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    RestaurantModule,
     // Phase 2+ feature modules (RestaurantModule, BranchModule, ...) get added here later
   ],
   providers: [

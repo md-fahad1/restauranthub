@@ -94,7 +94,14 @@ export class AuthService {
 
   // --- internals -----------------------------------------------------------
 
-  private async issueTokens(userId: string) {
+  /**
+   * Public on purpose: other modules call this whenever a user's roles or
+   * restaurant/branch association changes (e.g. RestaurantService after
+   * createRestaurant assigns the OWNER role) so the client gets a token
+   * pair reflecting the new permissions immediately, without forcing a
+   * re-login.
+   */
+  async issueTokens(userId: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       include: {

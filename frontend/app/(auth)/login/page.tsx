@@ -13,6 +13,8 @@ import { getPostAuthRedirect } from '@/lib/auth/get-post-auth-redirect';
 import { TicketShell } from '@/components/auth/TicketShell';
 import { StampToggle } from '@/components/auth/StampToggle';
 import { Field } from '@/components/auth/Field';
+//admin@restauranthub.dev	ChangeMe123!	SUPER_ADMIN
+// owner@testrestaurant.dev	ChangeMe123!	OWNER
 
 export default function LoginPage() {
   const router = useRouter();

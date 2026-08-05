@@ -47,23 +47,20 @@ export default function AdminUsersPage() {
   }
 
   if (error) {
-  console.log(error);
+    console.log(error);
 
-  return (
-    <pre className="p-5">
-      {JSON.stringify(error, null, 2)}
-    </pre>
-  );
-}
+    return (
+      <pre className="p-5">
+        {JSON.stringify(error, null, 2)}
+      </pre>
+    );
+  }
 
   return (
     <>
-      <PageHeader
-        title="Users"
-        subtitle={`${users.length} registered users`}
-      />
+      <PageHeader title="Users" subtitle={`${users.length} registered users`} />
 
-      <div className="mb-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 sm:w-96">
+      <div className="mb-4 flex animate-fade-up items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 sm:w-96">
         <Search size={16} className="text-gray-400" />
 
         <input
@@ -74,29 +71,24 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <div className="animate-fade-up overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b bg-gray-50">
-              <th className="px-5 py-3">Name</th>
-              <th className="px-5 py-3">Email</th>
-              <th className="px-5 py-3">Status</th>
+            <tr className="border-b border-gray-100 bg-gray-50/60 text-xs uppercase tracking-wide text-gray-400">
+              <th className="px-5 py-3 font-medium">Name</th>
+              <th className="px-5 py-3 font-medium">Email</th>
+              <th className="px-5 py-3 font-medium">Status</th>
             </tr>
           </thead>
 
           <tbody>
             {filtered.map((user) => (
-              <tr
-                key={user.id}
-                className="border-b hover:bg-gray-50"
-              >
-                <td className="px-5 py-3">
+              <tr key={user.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                <td className="px-5 py-3 text-ink">
                   {user.firstName} {user.lastName}
                 </td>
 
-                <td className="px-5 py-3">
-                  {user.email}
-                </td>
+                <td className="px-5 py-3 text-gray-500">{user.email}</td>
 
                 <td className="px-5 py-3">
                   <AdminStatusBadge
@@ -114,10 +106,7 @@ export default function AdminUsersPage() {
 
             {filtered.length === 0 && (
               <tr>
-                <td
-                  colSpan={3}
-                  className="py-8 text-center text-gray-400"
-                >
+                <td colSpan={3} className="px-5 py-8 text-center text-gray-400">
                   No users found.
                 </td>
               </tr>

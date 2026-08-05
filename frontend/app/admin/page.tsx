@@ -6,9 +6,6 @@ import { Store, DollarSign, AlertCircle, UserPlus, TrendingUp, TrendingDown } fr
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge';
 
-// Mock — replace with real platform-wide queries once built (restaurant
-// count, subscription aggregation, signup timeline). SUPER_ADMIN-only
-// resolvers, distinct from the tenant-scoped queries the owner dashboard uses.
 const KPIS = [
   { label: 'Total Restaurants', value: 128, delta: 6.4, icon: Store },
   { label: 'MRR', value: 9840, prefix: '$', delta: 11.2, icon: DollarSign },

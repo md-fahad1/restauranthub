@@ -11,7 +11,7 @@ async function bootstrap() {
     origin: 'http://localhost:3000',
   });
 
-  const port = process.env.PORT ?? 4000;
+  const port = process.env.PORT ?? 7000;
   await app.listen(port);
   console.log(`RestaurantHub API running on http://localhost:${port}/graphql`);
 }
