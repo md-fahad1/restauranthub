@@ -5,6 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+   async findById(id: string) {
+    return this.prisma.user.findUnique({ where: { id } });
+  }
   async findAll() {
     return this.prisma.user.findMany({
       where: {

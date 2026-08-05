@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useApolloClient } from '@apollo/client/react';
 import {
   Search,
   Bell,
@@ -11,40 +13,31 @@ import {
   Settings,
   LogOut,
 } from 'lucide-react';
+import { useAuthStore } from '@/store/auth-store';
 
-interface TopbarProps {
-  alertCount?: number;
-  user?: {
-    name: string;
-    email: string;
-    image?: string;
-  };
-}
-
-export function Topbar({
-  alertCount = 0,
-  user = {
-    name: 'Owner',
-    email: 'owner@example.com',
-  },
-}: TopbarProps) {
+export function Topbar({ alertCount = 0 }: { alertCount?: number }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const apolloClient = useApolloClient();
+
+  const storeUser = useAuthStore((s) => s.user);
+  const clearSession = useAuthStore((s) => s.clearSession);
+
+  const user = {
+    name: storeUser ? `${storeUser.firstName} ${storeUser.lastName}` : 'Owner',
+    email: storeUser?.email ?? 'owner@example.com',
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
-
-    return () =>
-      document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const initials = user.name
@@ -53,6 +46,17 @@ export function Topbar({
     .join('')
     .substring(0, 2)
     .toUpperCase();
+
+  async function handleLogout() {
+    clearSession();
+
+    // Drops any cached query results (e.g. `me`, `restaurants`) tied to
+    // the session that just ended, so a different user logging in next
+    // doesn't briefly see the previous user's cached data.
+    await apolloClient.clearStore();
+
+    router.push('/login');
+  }
 
   return (
     <header className="flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
@@ -88,17 +92,9 @@ export function Topbar({
             onClick={() => setOpen(!open)}
             className="flex items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-gray-50"
           >
-            {user.image ? (
-              <img
-                src={user.image}
-                alt={user.name}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink/10 font-semibold text-ink">
-                {initials}
-              </div>
-            )}
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink/10 font-semibold text-ink">
+              {initials}
+            </div>
 
             <span className="hidden text-sm font-medium text-ink sm:block">
               {user.name}
@@ -106,9 +102,7 @@ export function Topbar({
 
             <ChevronDown
               size={14}
-              className={`text-gray-400 transition-transform ${
-                open ? 'rotate-180' : ''
-              }`}
+              className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -117,18 +111,14 @@ export function Topbar({
             <div className="absolute right-0 mt-2 w-60 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
               {/* User Info */}
               <div className="border-b border-gray-100 px-4 py-4">
-                <p className="font-medium text-gray-900">
-                  {user.name}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {user.email}
-                </p>
+                <p className="font-medium text-gray-900">{user.name}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
               </div>
 
               {/* Menu */}
               <div className="py-2">
                 <Link
-                  href="/profile"
+                  href="/dashboard/profile"
                   className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-50"
                 >
                   <User size={17} />
@@ -136,7 +126,7 @@ export function Topbar({
                 </Link>
 
                 <Link
-                  href="/settings"
+                  href="/dashboard/settings"
                   className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-50"
                 >
                   <Settings size={17} />
@@ -146,10 +136,7 @@ export function Topbar({
                 <div className="my-2 border-t border-gray-100" />
 
                 <button
-                  onClick={() => {
-                    // TODO: Logout
-                    console.log('Logout');
-                  }}
+                  onClick={handleLogout}
                   className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-600 transition hover:bg-red-50"
                 >
                   <LogOut size={17} />

@@ -42,7 +42,7 @@ type Mutation {
 }
 
 type Query {
-  me: String!
+  me: UserEntity!
   restaurants: [RestaurantType!]!
   users: [UserEntity!]!
 }
