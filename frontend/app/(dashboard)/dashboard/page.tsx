@@ -176,7 +176,7 @@ export default function DashboardOverviewPage() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0EDE4" />
               <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} />
               <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} width={36} />
-              <Tooltip formatter={(v: number) => [`$${v}`, 'Revenue']} />
+              <Tooltip formatter={(v) => [`$${v ?? 0}`, 'Revenue']} />
               <Area
                 type="monotone"
                 dataKey="revenue"
