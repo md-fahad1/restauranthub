@@ -7,10 +7,15 @@ async function bootstrap() {
   // Without this, the browser blocks every request from your Next.js
   // frontend (localhost:3000) to this API (localhost:4000) — that's
   // exactly the "Failed to fetch" error you're seeing.
-  app.enableCors({
-    origin: 'http://localhost:3000',
+   app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'https://restauranthub-sigma.vercel.app',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
-
   const port = process.env.PORT ?? 7000;
   await app.listen(port);
   console.log(`RestaurantHub API running on http://localhost:${port}/graphql`);
