@@ -8,6 +8,20 @@ type AuthPayload {
   user: UserType!
 }
 
+type BranchType {
+  address: String!
+  city: String!
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  latitude: Float
+  longitude: Float
+  name: String!
+  phone: String
+  postalCode: String
+  updatedAt: DateTime!
+}
+
 input CreateRestaurantInput {
   currency: String
   email: String
@@ -43,6 +57,7 @@ type Mutation {
 
 type Query {
   me: UserEntity!
+  myRestaurant: RestaurantType!
   restaurants: [RestaurantType!]!
   users: [UserEntity!]!
 }
@@ -68,16 +83,21 @@ type RestaurantOwnerType {
 
 type RestaurantType {
   branchCount: Int!
+  branches: [BranchType!]!
+  coverImage: String
   createdAt: DateTime!
   currency: String!
+  description: String
   email: String
   id: String!
+  logo: String
   name: String!
   owner: RestaurantOwnerType!
   phone: String
   slug: String!
   status: String!
   timezone: String!
+  updatedAt: DateTime!
 }
 
 type UserEntity {

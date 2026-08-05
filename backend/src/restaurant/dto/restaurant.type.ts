@@ -1,4 +1,5 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { BranchType } from './branch.type';
 
 @ObjectType()
 export class RestaurantOwnerType {
@@ -26,11 +27,20 @@ export class RestaurantType {
   @Field()
   slug!: string;
 
-  @Field(() => String, { nullable: true })
-  email?: string | null;
+ @Field(() => String, { nullable: true })
+email!: string | null;
 
-  @Field(() => String, { nullable: true })
-  phone?: string | null;
+@Field(() => String, { nullable: true })
+phone!: string | null;
+
+@Field(() => String, { nullable: true })
+logo!: string | null;
+
+@Field(() => String, { nullable: true })
+coverImage!: string | null;
+
+@Field(() => String, { nullable: true })
+description!: string | null;
 
   @Field()
   currency!: string;
@@ -41,12 +51,18 @@ export class RestaurantType {
   @Field()
   status!: string;
 
-  @Field(() => Int)
-  branchCount!: number;
-
   @Field()
   createdAt!: Date;
 
+  @Field()
+  updatedAt!: Date;
+
   @Field(() => RestaurantOwnerType)
   owner!: RestaurantOwnerType;
+
+  @Field(() => Int)
+  branchCount!: number;
+
+  @Field(() => [BranchType])
+  branches!: BranchType[];
 }

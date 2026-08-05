@@ -26,4 +26,10 @@ export class RestaurantResolver {
   async restaurants(): Promise<RestaurantType[]> {
     return this.restaurantService.findAllForAdmin();
   }
+ @Query(() => RestaurantType)
+myRestaurant(
+  @CurrentUser() user: JwtPayload,
+) {
+  return this.restaurantService.findMyRestaurant(user.sub);
+}
 }

@@ -11,8 +11,39 @@ import {
 } from 'lucide-react';
 
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { MY_RESTAURANT } from '@/lib/graphql/restaurant';
+import { useQuery } from '@apollo/client/react';
 
 export default function RestaurantPage() {
+  interface Restaurant {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string | null;
+  logo: string | null;
+  createdAt: string;
+  branchCount: number;
+
+  owner: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+
+  branches: {
+    id: string;
+    name: string;
+    city: string;
+    address: string;
+  }[];
+}
+
+const { data, loading, error } = useQuery<{ myRestaurant: Restaurant }>(
+  MY_RESTAURANT,
+);
+
+const restaurant = data?.myRestaurant;
   return (
     <>
       <PageHeader
@@ -42,7 +73,7 @@ export default function RestaurantPage() {
 
                 <div>
                   <h2 className="text-xl font-semibold text-ink">
-                    Coastal Kitchen
+                    {restaurant?.name || 'Restaurant Name'}
                   </h2>
 
                   <p className="text-sm text-gray-500">
@@ -60,7 +91,7 @@ export default function RestaurantPage() {
                 </label>
 
                 <p className="mt-1 text-sm font-medium text-ink">
-                  Coastal Kitchen
+                  {restaurant?.name || 'Restaurant Name'}
                 </p>
               </div>
 
@@ -71,7 +102,7 @@ export default function RestaurantPage() {
 
                 <div className="mt-1 flex items-center gap-2 text-sm text-gray-700">
                   <Mail size={15} />
-                  contact@coastalkitchen.com
+                  {restaurant?.email || 'Not provided'}
                 </div>
               </div>
 
@@ -82,7 +113,7 @@ export default function RestaurantPage() {
 
                 <div className="mt-1 flex items-center gap-2 text-sm text-gray-700">
                   <Phone size={15} />
-                  +8801712345678
+                  {restaurant?.phone || '+8801712345678'}
                 </div>
               </div>
 
@@ -93,7 +124,7 @@ export default function RestaurantPage() {
 
                 <div className="mt-1 flex items-center gap-2 text-sm text-gray-700">
                   <MapPin size={15} />
-                  Dhanmondi, Dhaka
+                  {restaurant?.branches[0]?.address || 'Not provided'}
                 </div>
               </div>
 
@@ -114,7 +145,7 @@ export default function RestaurantPage() {
                 </label>
 
                 <p className="mt-1 text-sm font-medium text-ink">
-                  Fahad Khan
+                  {restaurant?.owner.firstName || 'Owner First Name'}{' '}
                 </p>
               </div>
 

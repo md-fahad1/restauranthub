@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from '../auth/auth.service';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
+import { RestaurantType } from './dto/restaurant.type';
 
 @Injectable()
 export class RestaurantService {
@@ -27,9 +28,6 @@ export class RestaurantService {
 
     await this.ensureOwnerRole(userId);
 
-    // Reissue tokens so the JWT's roles array reflects OWNER immediately —
-    // otherwise the user would need to log out and back in before any
-    // @Roles('OWNER') guarded mutation would accept them.
     const tokens = await this.authService.issueTokens(userId);
 
     return {
@@ -38,31 +36,158 @@ export class RestaurantService {
     };
   }
 
-  async findAllForAdmin() {
+  async findAllForAdmin(): Promise<RestaurantType[]> {
     const restaurants = await this.prisma.restaurant.findMany({
-      where: { deletedAt: null },
-      include: {
-        owner: { select: { id: true, firstName: true, lastName: true, email: true } },
-        _count: { select: { branches: true } },
+      where: {
+        deletedAt: null,
       },
-      orderBy: { createdAt: 'desc' },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        branches: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
     });
 
-    return restaurants.map(({ _count, ...r }) => ({
-      ...r,
-      branchCount: _count.branches,
+    return restaurants.map((restaurant) => ({
+      id: restaurant.id,
+      name: restaurant.name,
+      slug: restaurant.slug,
+      email: restaurant.email,
+      phone: restaurant.phone,
+      logo: restaurant.logo,
+      coverImage: restaurant.coverImage,
+      description: restaurant.description,
+      currency: restaurant.currency,
+      timezone: restaurant.timezone,
+      status: restaurant.status,
+      createdAt: restaurant.createdAt,
+      updatedAt: restaurant.updatedAt,
+
+      owner: {
+        id: restaurant.owner.id,
+        firstName: restaurant.owner.firstName,
+        lastName: restaurant.owner.lastName,
+        email: restaurant.owner.email,
+      },
+
+      branchCount: restaurant.branches.length,
+
+      branches: restaurant.branches.map((branch) => ({
+        id: branch.id,
+        name: branch.name,
+        phone: branch.phone,
+        email: branch.email,
+        address: branch.address,
+        city: branch.city,
+        postalCode: branch.postalCode,
+        latitude: branch.latitude,
+        longitude: branch.longitude,
+        createdAt: branch.createdAt,
+        updatedAt: branch.updatedAt,
+      })),
     }));
   }
 
-  // --- internals -------------------------------------------------------
+  async findMyRestaurant(userId: string): Promise<RestaurantType> {
+    const restaurant = await this.prisma.restaurant.findFirst({
+      where: {
+        ownerId: userId,
+        deletedAt: null,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        branches: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!restaurant) {
+      throw new Error('Restaurant not found');
+    }
+
+    return {
+      id: restaurant.id,
+      name: restaurant.name,
+      slug: restaurant.slug,
+      email: restaurant.email,
+      phone: restaurant.phone,
+      logo: restaurant.logo,
+      coverImage: restaurant.coverImage,
+      description: restaurant.description,
+      currency: restaurant.currency,
+      timezone: restaurant.timezone,
+      status: restaurant.status,
+      createdAt: restaurant.createdAt,
+      updatedAt: restaurant.updatedAt,
+
+      owner: {
+        id: restaurant.owner.id,
+        firstName: restaurant.owner.firstName,
+        lastName: restaurant.owner.lastName,
+        email: restaurant.owner.email,
+      },
+
+      branchCount: restaurant.branches.length,
+
+      branches: restaurant.branches.map((branch) => ({
+        id: branch.id,
+        name: branch.name,
+        phone: branch.phone,
+        email: branch.email,
+        address: branch.address,
+        city: branch.city,
+        postalCode: branch.postalCode,
+        latitude: branch.latitude,
+        longitude: branch.longitude,
+        createdAt: branch.createdAt,
+        updatedAt: branch.updatedAt,
+      })),
+    };
+  }
 
   private async ensureOwnerRole(userId: string): Promise<void> {
-    const ownerRole = await this.prisma.role.findUniqueOrThrow({ where: { slug: 'OWNER' } });
+    const ownerRole = await this.prisma.role.findUniqueOrThrow({
+      where: { slug: 'OWNER' },
+    });
 
     await this.prisma.userRole.upsert({
-      where: { userId_roleId: { userId, roleId: ownerRole.id } },
+      where: {
+        userId_roleId: {
+          userId,
+          roleId: ownerRole.id,
+        },
+      },
       update: {},
-      create: { userId, roleId: ownerRole.id },
+      create: {
+        userId,
+        roleId: ownerRole.id,
+      },
     });
   }
 
@@ -76,12 +201,12 @@ export class RestaurantService {
     let candidate = base || 'restaurant';
     let attempt = 0;
 
-    // Loop instead of a single random suffix so common names like
-    // "Pizza Place" still get a short, readable slug (pizza-place,
-    // pizza-place-2, ...) instead of an ugly random string on the first
-    // collision, which is the common case for a demo/early-access product.
-    while (await this.prisma.restaurant.findUnique({ where: { slug: candidate } })) {
-      attempt += 1;
+    while (
+      await this.prisma.restaurant.findUnique({
+        where: { slug: candidate },
+      })
+    ) {
+      attempt++;
       candidate = `${base}-${attempt + 1}`;
     }
 

@@ -22,6 +22,37 @@ export const CREATE_RESTAURANT_MUTATION = gql`
     }
   }
 `;
+export const MY_RESTAURANT = gql`
+query MyRestaurant {
+  myRestaurant {
+    id
+    name
+    email
+    phone
+    logo
+    description
+    currency
+    timezone
+    status
+    createdAt
+
+    owner {
+      firstName
+      lastName
+      email
+    }
+
+    branchCount
+
+    branches {
+      id
+      name
+      city
+      address
+    }
+  }
+}
+`;
 
 export interface Restaurant {
   id: string;
