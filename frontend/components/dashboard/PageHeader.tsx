@@ -1,3 +1,4 @@
+'use client';
 export function PageHeader({
   title,
   subtitle,
