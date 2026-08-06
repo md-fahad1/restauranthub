@@ -1,6 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { BranchType } from './branch.type';
-
+import { BranchType } from '../../branch/entity/branch.entity';
 @ObjectType()
 export class RestaurantOwnerType {
   @Field()

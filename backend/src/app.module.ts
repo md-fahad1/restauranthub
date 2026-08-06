@@ -10,6 +10,9 @@ import { GqlAuthGuard } from './auth/guards/gql-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { UsersModule } from './users/users.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
+import { BranchModule } from './branch/branch.module';
+import { EmployeeModule } from './employee/employee.module';
+import { TableModule } from './table/table.module';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { RestaurantModule } from './restaurant/restaurant.module';
     AuthModule,
     UsersModule,
     RestaurantModule,
+    BranchModule,
+    EmployeeModule, 
+    TableModule, // Add TableModule to the imports array
     // Phase 2+ feature modules (RestaurantModule, BranchModule, ...) get added here later
   ],
   providers: [

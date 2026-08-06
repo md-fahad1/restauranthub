@@ -22,6 +22,36 @@ type BranchType {
   updatedAt: DateTime!
 }
 
+input CreateBranchInput {
+  address: String!
+  city: String!
+  email: String
+  latitude: Float
+  longitude: Float
+  name: String!
+  phone: String
+  postalCode: String
+  restaurantId: String!
+}
+
+input CreateEmployeeInput {
+  branchId: String!
+  designation: String!
+  email: String!
+  firstName: String!
+  hiredAt: String!
+  lastName: String!
+  password: String
+  phone: String
+  restaurantId: String!
+  salary: Float!
+}
+
+type CreateEmployeeResult {
+  employee: EmployeeType!
+  temporaryPassword: String!
+}
+
 input CreateRestaurantInput {
   currency: String
   email: String
@@ -37,10 +67,52 @@ type CreateRestaurantPayload {
   user: UserType!
 }
 
+input CreateTableInput {
+  branchId: String!
+  capacity: Int!
+  location: String
+  name: String
+  restaurantId: String!
+  tableNumber: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type EmployeeBranchType {
+  id: ID!
+  name: String!
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  RESIGNED
+  TERMINATED
+}
+
+type EmployeeType {
+  branch: EmployeeBranchType!
+  createdAt: DateTime!
+  designation: String!
+  employeeCode: String!
+  hiredAt: DateTime!
+  id: ID!
+  salary: Float!
+  status: EmployeeStatus!
+  updatedAt: DateTime!
+  user: EmployeeUserType!
+}
+
+type EmployeeUserType {
+  email: String!
+  firstName: String!
+  id: ID!
+  lastName: String!
+  phone: String
+}
 
 input LoginInput {
   email: String!
@@ -48,17 +120,32 @@ input LoginInput {
 }
 
 type Mutation {
+  createBranch(input: CreateBranchInput!): BranchType!
+  createEmployee(input: CreateEmployeeInput!): CreateEmployeeResult!
   createRestaurant(input: CreateRestaurantInput!): CreateRestaurantPayload!
+  createTable(input: CreateTableInput!): TableType!
+  deleteBranch(branchId: String!, restaurantId: String!): Boolean!
   login(input: LoginInput!): AuthPayload!
   logout: Boolean!
   refreshToken(input: RefreshTokenInput!): AuthPayload!
   register(input: RegisterInput!): AuthPayload!
+  removeEmployee(employeeId: String!, restaurantId: String!): Boolean!
+  removeTable(restaurantId: String!, tableId: String!): Boolean!
+  updateBranch(input: UpdateBranchInput!): BranchType!
+  updateEmployee(input: UpdateEmployeeInput!): EmployeeType!
+  updateTable(input: UpdateTableInput!): TableType!
 }
 
 type Query {
+  branch(branchId: String!, restaurantId: String!): BranchType!
+  branches(restaurantId: String!): [BranchType!]!
+  employee(employeeId: String!, restaurantId: String!): EmployeeType!
+  employees(restaurantId: String!): [EmployeeType!]!
   me: UserEntity!
   myRestaurant: RestaurantType!
   restaurants: [RestaurantType!]!
+  table(restaurantId: String!, tableId: String!): TableType!
+  tables(branchId: String, restaurantId: String!): [TableType!]!
   users: [UserEntity!]!
 }
 
@@ -98,6 +185,65 @@ type RestaurantType {
   status: String!
   timezone: String!
   updatedAt: DateTime!
+}
+
+type TableBranchType {
+  id: ID!
+  name: String!
+}
+
+enum TableStatus {
+  AVAILABLE
+  CLEANING
+  OCCUPIED
+  OUT_OF_SERVICE
+  RESERVED
+}
+
+type TableType {
+  branch: TableBranchType!
+  capacity: Int!
+  createdAt: DateTime!
+  id: ID!
+  location: String
+  name: String
+  status: TableStatus!
+  tableNumber: String!
+  updatedAt: DateTime!
+}
+
+input UpdateBranchInput {
+  address: String
+  branchId: String!
+  city: String
+  email: String
+  latitude: Float
+  longitude: Float
+  name: String
+  phone: String
+  postalCode: String
+  restaurantId: String!
+}
+
+input UpdateEmployeeInput {
+  branchId: String
+  designation: String
+  employeeId: String!
+  hiredAt: String
+  restaurantId: String!
+  salary: Float
+  status: EmployeeStatus
+}
+
+input UpdateTableInput {
+  branchId: String
+  capacity: Int
+  location: String
+  name: String
+  restaurantId: String!
+  status: TableStatus
+  tableId: String!
+  tableNumber: String
 }
 
 type UserEntity {
