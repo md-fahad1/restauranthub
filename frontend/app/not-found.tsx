@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { TriangleAlert, ArrowLeft, Home } from 'lucide-react';
 
