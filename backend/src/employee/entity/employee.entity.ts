@@ -1,5 +1,5 @@
 import { Field, Float, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { EmployeeStatus } from '../../../generated/prisma/enums';
+import { EmployeeStatus } from '@prisma/client';
 
 registerEnumType(EmployeeStatus, {
   name: 'EmployeeStatus',

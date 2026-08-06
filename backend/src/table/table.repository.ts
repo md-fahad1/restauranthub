@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { TableStatus } from '../../generated/prisma/enums';
+import { TableStatus } from '@prisma/client';
 
 const TABLE_INCLUDE = {
   branch: {

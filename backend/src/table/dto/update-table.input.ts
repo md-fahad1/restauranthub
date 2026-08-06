@@ -1,6 +1,6 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
-import { TableStatus } from '../../../generated/prisma/enums';
+import { TableStatus } from '@prisma/client';
 
 @InputType()
 export class UpdateTableInput {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmployeeStatus } from '../../generated/prisma/enums';
+import { EmployeeStatus } from '@prisma/client';
 
 const EMPLOYEE_INCLUDE = {
   user: {

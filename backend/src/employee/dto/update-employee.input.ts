@@ -1,6 +1,6 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, IsNumber, Min, IsDateString } from 'class-validator';
-import { EmployeeStatus } from '../../../generated/prisma/enums';
+import { EmployeeStatus } from '@prisma/client';
 
 @InputType()
 export class UpdateEmployeeInput {

@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { TableStatus } from '../../../generated/prisma/enums';
+import { TableStatus } from '@prisma/client';
 
 registerEnumType(TableStatus, {
   name: 'TableStatus',
